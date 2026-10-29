@@ -179,8 +179,12 @@ ssize_t write_file(const void *buffer, size_t len, bool preserve_times,
 	 * conserve @r's value from 'write'
 	 */
 
+	sync();
+
 	if (rename(tmp_path, path) == -1)
 		r = -1;
+
+	sync();
 
 error_write:
 	if (r < 0)
@@ -598,6 +602,11 @@ bool storage_decrypt(struct l_settings *settings, const char *path,
 	return true;
 }
 
+static void settings_debug(const char *str, void *userdata)
+{
+        printf("%s\n", str);
+}
+
 struct l_settings *storage_network_open(enum security type, const char *ssid)
 {
 	struct l_settings *settings;
@@ -609,6 +618,7 @@ struct l_settings *storage_network_open(enum security type, const char *ssid)
 	path = storage_get_network_file_path(type, ssid);
 
 	settings = l_settings_new();
+	l_settings_set_debug(settings, settings_debug, NULL, NULL);
 
 	if (!l_settings_load_from_file(settings, path)) {
 		l_error("Error loading %s", path);

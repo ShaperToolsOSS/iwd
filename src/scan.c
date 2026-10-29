@@ -903,6 +903,18 @@ done:
 					WIPHY_WORK_PRIORITY_SCAN, &work_ops);
 }
 
+bool scan_active_is_enabled(void)
+{
+	const struct l_settings *config = iwd_get_config();
+	bool enabled;
+
+	if (!l_settings_get_bool(config, "Scan", "EnableActiveScanning",
+								&enabled))
+		return false;
+
+	return enabled;
+}
+
 bool scan_cancel(uint64_t wdev_id, uint32_t id)
 {
 	struct scan_context *sc;
@@ -1047,7 +1059,7 @@ static bool scan_periodic_queue(struct scan_context *sc)
 
 	params.freqs = freqs;
 
-	if (sc->sp.needs_active_scan && known_networks_has_hidden()) {
+	if (scan_active_is_enabled() || (sc->sp.needs_active_scan && known_networks_has_hidden())) {
 		params.randomize_mac_addr_hint = true;
 
 		sc->sp.needs_active_scan = false;

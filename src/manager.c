@@ -203,6 +203,7 @@ static void manager_create_interfaces(struct wiphy_setup_state *state)
 		return;
 
 	if (state->use_default) {
+		l_info("Using default wifi device interface");
 		manager_use_default(state);
 
 		/*
@@ -211,6 +212,8 @@ static void manager_create_interfaces(struct wiphy_setup_state *state)
 		 * give it a chance.
 		 */
 		goto try_create_p2p;
+	} else {
+		l_info("Controlling wifi device interface");
 	}
 
 	/*
